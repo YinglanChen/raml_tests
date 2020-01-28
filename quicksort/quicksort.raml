@@ -1,0 +1,29 @@
+exception OutOfBound
+
+let rec nth (l: int list) (i: int) : int = 
+  match l with
+  | [] -> raise OutOfBound
+  | a::l' -> if (i = 0) then a else nth l' (i-1)
+
+let rec append (l1: int list) (l2: int list) = 
+  match l1 with
+  | [] -> l2 
+  | a::l1' -> a :: (append l1' l2)
+
+let rec split (l: int list) (pivot: int): int list * int list = 
+    match l with 
+    | [] -> ([],[])
+    | x::l' -> let (less,greater) = split l' pivot
+               in if (x < pivot) then (x::less, greater) else (less, x::greater)
+
+let rec qsort (l: int list): int list = 
+    match l with
+    | [] -> []
+    | x::[] -> l
+    | x::l' -> let pivot = nth l 0 in 
+               let (less, greater) = split l' pivot in 
+               let ls_sorted = qsort less in 
+               let gt_sorted = qsort greater in 
+               append ls_sorted (x :: gt_sorted)
+
+let _ = qsort([5;4;3;2;1])

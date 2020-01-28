@@ -1,0 +1,37 @@
+let rec insert (x: int) (l: int list) = 
+  match l with 
+  | [] -> [x]
+  | y::l' -> if (x <= y) then x::y::l' else y :: (insert x l');;
+
+let rec isort (l : int list) : int list = 
+  match l with 
+  | [] -> [] 
+  | x::l' -> insert x (isort l');;
+
+let rec insert (x: int) (l: int list) = 
+  match l with 
+  | [] -> [x]
+  | y::l' -> (Raml.tick(1.0);if (x <= y) then x::y::l' else y :: (insert x l'));;
+
+let rec isort (l : int list) : int list = 
+  match l with 
+  | [] -> [] 
+  | x::l' -> insert x (isort l');;
+
+(* for ocaml use, to check correctness *)
+(* let _ = print_string (String.concat " " (List.map string_of_int (isort [4;5;2;5;1])));; *)
+let _ = isort [4;5;2;5;1];;
+
+
+(* 
+>> Fatal error: 
+Uncaught exception:
+  
+  Misc.Fatal_error
+
+Raised at file "utils/misc.ml", line 18, characters 60-71
+Called from file "raml/parseraml.ml", line 55, characters 25-47
+Called from file "raml/parseraml.ml", line 151, characters 48-81
+Called from file "main.ml", line 398, characters 16-51
+Called from file "main.ml", line 578, characters 8-21
+ *)
