@@ -1,0 +1,37 @@
+(* e : real *)
+(*let e : real = 2.71828182845905*)
+
+(* isOne : int -> bool
+ * REQUIRES: true
+ * ENSURES: evaluates to true if the input is 1 and false otherwise *)
+(*let isOne (1 : int) = true
+    | isOne _  = false*)
+
+(* fact: int -> int
+ * REQUIRES: n >= 0
+ * ENSURES: fact n evaluates to n factorial *)
+let rec fact x = 
+  if x <= 1 then 1 
+  else let _ = Raml.tick 1.0 in x * fact (x - 1)
+
+let _ = fact 5
+
+(* remark: change real in SML to float in ocaml/raML *)
+(* exp : float -> float
+ * REQUIRES: true
+ * ENSURES: (exp x) ==> e^x *)
+(* let exp x: real = Math.exp x *)
+
+(* pi: real *)
+(*let pi : real = 3.14159265358979*)
+
+(* area : real -> real
+ * REQUIRES: d >= 0
+ * ENSURES: evaluates to the area of a circle with radius d *)
+(*let area (d :real) : real = pi * d * d*)
+
+
+(* vol : real -> real
+ * REQUIRES: r >= 0
+ * ENSURES: evaluates to the volume of a sphere with radius r *)
+(*let vol (r : real) : real = 4.0 / 3.0 * pi * r * r * r*)

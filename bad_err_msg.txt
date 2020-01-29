@@ -1,0 +1,38 @@
+1. syntax err without details; same for hw02
+code: 
+let fact 0  = 1
+|   fact n  = n * fact(n-1)
+
+err msg: Resource Aware ML, Version 1.4.2, July 2018
+
+File "code_hw01.raml", line 21, characters 0-1:
+Error: Syntax error
+>> Fatal error: 
+Uncaught exception:
+  
+  Misc.Fatal_error
+
+Raised at file "utils/misc.ml", line 18, characters 60-71
+Called from file "raml/parseraml.ml", line 55, characters 25-47
+Called from file "raml/parseraml.ml", line 151, characters 48-81
+Called from file "main.ml", line 398, characters 16-51
+Called from file "main.ml", line 578, characters 8-21
+
+camp msg using ocamlopt:
+File "hw01.ml", line 21, characters 0-1:
+Error: Syntax error
+
+Remark: maybe not raML's problem; ocaml's msg is very vague 
+
+2. 15150hw1 cannot analyze fact 
+Analyzing expression ...
+
+  Trying degree: 3
+
+  No bound could be derived. The linear program is infeasible.
+
+  Mode:          upper
+  Metric:        ticks
+  Degree:        3
+  Run time:      0.01 seconds
+  #Constraints:  16

@@ -28,3 +28,14 @@ Called from file "raml/parseraml.ml", line 55, characters 25-47
 Called from file "raml/parseraml.ml", line 154, characters 45-78
 Called from file "main.ml", line 405, characters 16-48
 Called from file "main.ml", line 578, characters 8-21
+
+3. support guessing of keywords
+Resource Aware ML, Version 1.4.2, July 2018
+
+File "hw02.raml", line 39, characters 17-26:
+Error: Unbound value Raml.rick
+Did you mean tick?
+>> Fatal error: 
+Uncaught exception:
+  
+  Misc.Fatal_error
