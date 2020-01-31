@@ -1,0 +1,23 @@
+grep -rnw './raml-1.4.2/' -e 'Fatal error'
+
+(only one non binary file result;)
+./raml-1.4.2//utils/misc.ml:18:  prerr_string ">> Fatal error: "; prerr_endline msg; raise Fatal_error
+
+
+grep -rnw './raml-1.4.2/' -e 'Raised at file'
+(no result)
+
+grep -rnw './raml-1.4.2/' -e 'The linear program is infeasible.'
+./raml-1.4.2//main.ml:212:let _ = printf "\n  No bound could be derived. The linear program is infeasible.\n" in	   
+./raml-1.4.2//main.ml:283:let _ = printf "\n  A bound for %s could not be derived. The linear program is infeasible.\n" f_name in
+
+
+grep -rnw './raml-1.4.2/' -e 'Uncaught exception'
+(no nonbinary result found）
+
+grep -rnw './raml-1.4.2/' -e 'Unbound constructor'
+./raml-1.4.2//typing/typetexp.ml:811:      fprintf ppf "Unbound constructor %a" longident lid;
+(important file)
+
+grep -rnw './raml-1.4.2/' -e 'Did you mean'
+(no nonbinary result found)
