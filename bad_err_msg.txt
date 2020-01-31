@@ -36,3 +36,6 @@ Analyzing expression ...
   Degree:        3
   Run time:      0.01 seconds
   #Constraints:  16
+
+3. raml typecheck /Users/yinglanchen/Desktop/raML/tests/15150/hw04.raml 
+Simplify: unsupported built-in function: <>
