@@ -1,3 +1,10 @@
+2/12 hw04.raml 
+Resource Aware ML, Version 1.4.2, July 2018
+
+Simplify: unsupported built-in function: <>
+
+my code: let n = if x<>0 then 1 else 0 
+
 1. syntax err without details; same for hw02
 code: 
 let fact 0  = 1
