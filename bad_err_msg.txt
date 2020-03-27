@@ -46,3 +46,21 @@ Analyzing expression ...
 
 3. raml typecheck /Users/yinglanchen/Desktop/raML/tests/15150/hw04.raml 
 Simplify: unsupported built-in function: <>
+
+4. 
+Resource Aware ML, Version 1.4.2, July 2018
+
+Simplify: unsupported type at File "15150/hw05.raml", line 29, characters 8-14 (unsupported recursive type):
+Uncaught exception:
+  
+  Stack overflow
+
+Raised by primitive operation at file "typing/btype.ml", line 153, characters 12-19
+Called from file "typing/printtyp.ml", line 538, characters 11-19
+Called from file "list.ml", line 82, characters 20-23
+Called from file "typing/printtyp.ml", line 569, characters 42-66
+Called from file "list.ml", line 82, characters 20-23
+Called from file "typing/printtyp.ml", line 569, characters 42-66
+Called from file "list.ml", line 82, characters 20-23
+Called from file "typing/printtyp.ml", line 569, characters 42-66
+......
