@@ -1,0 +1,98 @@
+(* use "lib.sml"; *)
+
+(* Task 3.1 *)
+(* differentiate: poly -> poly
+ * REQUIRES: true
+ * ENSURES: differentiate(p) computes the derivative of p
+ *)
+(* fun differentiate (p : poly) : poly =
+    fn i => real(i+1) * p(i+1) *)
+
+(* Task 3.2 *)
+(* integrate: poly -> (real -> poly)
+ * REQURES: true
+ * ENSURES: integrate(p,r) returns a family of polynomials
+ *          corresponding to its integral with a constant r 
+ *)
+(* fun integrate (p : poly) : real -> poly =
+  fn r => (fn 0 => r |i => p(i-1) / real i) *)
+
+(* Task 4.1 *)
+(* helper function *)
+(* insert: 'a list * 'a list list -> 'a list list 
+ * REQUIRES: the second argument list is either empty
+ *           or has the same length as the first list
+ * ENSURES: when the second list is empty
+            insert([a1,a2,...,ak],[]) = [[a1],[a2],...,[ak]]
+      else, insert(l1, l2) cons the ith element of l1 to the ith element of l2
+ *)
+let rec insert ((l1: 'a list ), (l2: 'a list list) ): int list list = 
+    match l1 with 
+  | [] -> []
+  | a::l1' -> 
+      match l2 with 
+    | [] -> [a] :: insert (l1', [])
+    | b::l2' -> (a :: b) :: insert (l1', l2')
+
+(* TESTING *)
+(* val [] = insert([],[]);
+val [[1],[2]] = insert([1,2],[])
+val [[1,3],[2,4]] = insert([1,2],[[3],[4]])
+ *)
+(* transpose: 'a list list -> 'a list list 
+ * REQUIRES: all the inner lists have the same length
+ * ENSURES: transpose(L) interchanges the rows and columns of L
+ *          if the inner lists are all empty, transpose(L) return nil
+ *)
+let rec foldr (f: 'a * 'b -> 'b) (init: 'b) (l: 'a list) = 
+  match l with
+  | [] -> init
+  | x1::r -> f (x1, (foldr f init r))
+
+let transpose (l : 'a list list) : 'a list list = foldr insert [] l 
+
+let _ = transpose [[1]];;
+(* TESTING *)
+(* val [] = transpose []
+val [] = transpose [[]]
+val [] = transpose [[],[],[]]
+val [[1],[2]] = transpose[[1,2]]
+val [[1,2],[3,4]] = transpose [[1,3],[2,4]]
+val [[1,2],[3,4],[5,6]] = transpose[[1,3,5],[2,4,6]]
+val [[1,3,5],[2,4,6]] = transpose (transpose[[1,3,5],[2,4,6]]) *)
+
+
+(* Task 6.1 *)
+type 'a forest = Node of 'a option * 'a forest list
+
+(* Task 6.2 *)
+(* singleton: 'a -> 'a forest
+ * REQUIRES: true
+ * ENSURES: singleton(x) returns Node(SOME x, [])
+ *)
+let singleton (x : 'a) : 'a forest = Node(Some x,[])
+
+(* is_stump: 'a forest -> bool
+ * REQUIRES: true
+ * ENSURES: is_stump(x) returns true if x is an empty forest, false otherwise
+ *)
+let is_stump (x :'a forest): bool =
+  match x with
+  | Node (_, []) -> true
+  | _ -> false 
+
+(* add_children: 'a forest -> 'a forest list -> 'a forest
+ * REQUIRES: true
+ * ENSURES:add_children(p)(c) appends c to the current children of p
+ *)
+let rec append (l1: 'a list) (l2: 'a list) = 
+  match l1 with
+  | [] -> l2 
+  | a::l1' -> a :: (append l1' l2)
+
+let add_children (fr : 'a forest) (c : 'a forest list) : 'a forest =
+    let Node(x,l) = fr in 
+    let l' = append l c in 
+    Node(x, l')
+
+let _ = add_children (singleton 1) ([singleton 1]) ;;

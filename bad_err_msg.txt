@@ -64,3 +64,92 @@ Called from file "typing/printtyp.ml", line 569, characters 42-66
 Called from file "list.ml", line 82, characters 20-23
 Called from file "typing/printtyp.ml", line 569, characters 42-66
 ......
+
+4. Okay when give tight upper bound; failed when give looser upper bound
+Error: analysis failure.
+
+
+Resource Aware ML, Version 1.4.1, July 2018
+
+Typechecking expression ...
+  Typecheck successful.
+  Stack-based typecheck successful.
+
+Analyzing expression ...
+
+  Trying degree: 3Uncaught exception:
+  
+  Not_found
+
+Raised at file "src/map.ml" (inlined), line 428, characters 6-26
+Called from file "src/map.ml", line 1273, characters 23-77
+Called from file "raml/annotations.ml", line 703, characters 11-33
+Called from file "list.ml", line 111, characters 24-34
+Called from file "list.ml", line 111, characters 24-34
+Called from file "list.ml", line 111, characters 24-34
+Called from file "raml/indices.ml", line 392, characters 17-44
+Called from file "list.ml", line 137, characters 24-31
+Called from file "src/list0.ml" (inlined), line 27, characters 40-75
+Called from file "src/list.ml", line 161, characters 2-19
+Called from file "raml/analysis.ml", line 1924, characters 24-70
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1982, characters 25-192
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1790, characters 25-148
+Called from file "raml/analysis.ml", line 1790, characters 25-148
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1982, characters 25-192
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 917, characters 30-42
+Called from file "raml/analysis.ml", line 1259, characters 31-64
+Called from file "raml/analysis.ml", line 1377, characters 34-55
+Called from file "raml/analysis.ml", line 1291, characters 38-62
+Called from file "raml/annotations.ml", line 577, characters 19-42
+Called from file "raml/analysis.ml", line 1529, characters 21-54
+Called from file "raml/analysis.ml", line 1637, characters 33-48
+Called from file "raml/analysis.ml", line 1829, characters 16-231
+Called from file "raml/analysis.ml", line 1845, characters 32-53
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1982, characters 25-192
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1790, characters 25-148
+Called from file "raml/analysis.ml", line 1790, characters 25-148
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1982, characters 25-192
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 917, characters 30-42
+Called from file "raml/analysis.ml", line 1259, characters 31-64
+Called from file "raml/analysis.ml", line 1377, characters 34-55
+Called from file "raml/annotations.ml", line 577, characters 19-42
+Called from file "raml/analysis.ml", line 1529, characters 21-54
+Called from file "raml/analysis.ml", line 1637, characters 33-48
+Called from file "raml/analysis.ml", line 1829, characters 16-231
+Called from file "raml/analysis.ml", line 1845, characters 32-53
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1908, characters 25-193
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 917, characters 30-42
+Called from file "raml/annotations.ml", line 577, characters 19-42
+Called from file "raml/analysis.ml", line 1529, characters 21-54
+Called from file "raml/analysis.ml", line 1637, characters 33-48
+Called from file "raml/analysis.ml", line 1829, characters 16-231
+Called from file "raml/analysis.ml", line 1845, characters 32-53
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1672, characters 18-153
+Called from file "raml/analysis.ml", line 1760, characters 14-133
+Called from file "raml/analysis.ml", line 2081, characters 16-28
+Called from file "main.ml", line 578, characters 8-21

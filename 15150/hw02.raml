@@ -1,66 +1,99 @@
-(* READ THIS COMMENT!
- *
- * In this file there are various lines marked by a comment either like so:
- *
- *    raise Fail "unimplemented"  
- *
- * or like so:
- *
- *    _ = raise Fail "unimplemented"  
- *
- * You do not need to delete these lines immediately, but they should be gone by
- * the time you hand in your homework. They are placeholders for your
- * implementations of the functions specified in the homework.  Without them,
- * this file would not load.
- *
- * If you remove such a line without implementing the function it is associated
- * with, this file will not load. Only remove such lines when you are ready to
- * implement their associated function.
- *
- *   Also notice that for some functions we specified the left parts of
- *   (one or more) function clauses, but for other functions we did not.
- *   You will need to decide what the function clauses should be in those cases.
- *
- * Remember to test your code! Place tests immediately following the function
- * you have written.
- *)
-
+exception DivideByZero
 (* REQUIRES:  n, m >= 0
  * ENSURES:  add (n, m) ==> n + m
  *)
-let rec add ((n : int), (m: int)) = if n = 0 then m 
-  else let _ = Raml.tick 1.0 in 1 + add (n-1, m)
+let rec add (n, m) = 
+    Rnat.ifz n 
+        ((fun () -> m))
+        ((fun n' -> let () = Raml.tick 1.0 in succ(add (n', m)) ))
 
+  (* Raml.tick 1.0 in 1 + add (n-1, m) *)
+
+let _ = add (succ(succ(Rnat.zero)),succ(Rnat.zero));;
 (* Task 5.1: Implement and document this function. *)
 (* Note: You may want to pattern-match for different cases. *)
 (* DOCUMENTATION GOES HERE *)
-let rec mult ((x : int), (y : int)) : int = 
-    if (x = 0 || y = 0) then 0
-    else let _ = Raml.tick 1.0 in y + mult (x-1, y) 
+let rec mult (x, y) = 
+    Rnat.ifz x 
+        ((fun () -> Rnat.zero))
+        ((fun x' -> (Rnat.ifz y 
+            ((fun () -> Rnat.zero))
+            ((fun y' -> 
+                let _ = Raml.tick 1.0 in 
+                let prod' = mult (x', y) in 
+                add(y, prod') 
+                (* use Rnat.add if dont want to count ticks in add *)
+            )))
+        ))
+
+let _ = mult (succ(succ(Rnat.zero)),succ(Rnat.zero));;
 
 (* Task 5.2: Implement and document this function. *)
-(* DOCUMENTATION GOES HERE *)
-let rec pascal ((i : int), (j : int)) : int = 
-    if (j = 0 || i-j = 0) then 1 
-    else pascal(i-1,j-1) + pascal(i-1,j)
+(* if i< j Rnat.minus raise Invalid_argument  *)
+let rec pascal ((i: Rnat.t), (j: Rnat.t)) = 
+    Rnat.ifz j 
+        ((fun () -> succ(Rnat.zero)))
+        ((fun i' -> 
+            ( let (i_minus_j,_) = (Rnat.minus i j) in 
+              (Rnat.ifz i_minus_j
+              ((fun () -> succ(Rnat.zero)))
+              ((fun j' -> let _ = Raml.tick 2.0 in 
+                          add (pascal (i',j'), pascal(i', j)))))
+            )
+        ))
 
+let _ = pascal (succ(succ(Rnat.zero)),succ(Rnat.zero));;
 (*TESTING GOES HERE*)
 
 (* Task 5.3: Implement and document this function. *)
-let rec divmod ( (n,d) : int * int) : int * int = 
-    if n < d then (0,n)
-    else let (x,y) = divmod(n-d,d)  in (x+1,y)
+(* no good way to do integer compare in Rnat  *)
+
+let rec divmod (n,d) = 
+  Rnat.ifz d 
+  ((fun () -> raise DivideByZero))
+  ((fun d' -> 
+    ( Rnat.ifz n 
+      ((fun () -> (Rnat.zero, Rnat.zero)))
+      ((fun n' -> 
+        if (Rnat.to_int n) < (Rnat.to_int d) then (Rnat.zero, n)
+        else  let (diff, _) = Rnat.minus n' d' in
+              let (x,y) = divmod(diff, d) in (Rnat.succ x, y)
+      ))
+    )
+    
+  ))
+  (* if n < d then (0,n) *)
+  (* else let (x,y) = divmod(n-d,d) in (x+1,y) *)
 
 (* Task 5.4: Implement this function. *)
+(* test if n has any factor smaller or equal to n-1  *)
 (* DOCUMENTATION GOES HERE *)
-let rec has_no_factor ((x : int), (n : int)): bool = 
-    if x = 1 then true 
+let rec has_no_factor (x,n): bool = 
+    let _ = Raml.tick 1.0 in (
+    Rnat.ifz x ((fun () -> false))
+    ((fun x' -> Rnat.ifz x' ((fun () -> true)) 
+                ((fun x'' -> let (_, remainder,_) = Rnat.div_mod n x in 
+                  (Rnat.ifz remainder ((fun () -> false)) ((fun r' -> has_no_factor(x', n))))
+                ))
+    )) )
+
+(*     if x = 1 then true 
     else if n mod x = 0 then false
-         else has_no_factor(x-1,n)
+         else has_no_factor(x-1,n) *)
 
-let is_prime (n : int) : bool =
-    if (n = 0 || n = 1) then false 
-    else has_no_factor(n-1,n)
+let is_prime (n) =
+  Rnat.ifz n ((fun () -> false))
+  (( fun n' -> 
+    ( Rnat.ifz n' ((fun () -> false))
+        ((fun x' -> 
+        ( Rnat.ifz x' ((fun () -> false)) 
+          ((fun _ -> has_no_factor(n', n) ))
+        )
+        ))
+(*         if (n = 0 || n = 1) then false 
+        else has_no_factor(n-1,n) *)
+   )
+  ))
 
-let _ = is_prime 7;;
+let _ = is_prime (succ(succ(succ(succ(succ(succ(succ(Rnat.zero))))))));;
 

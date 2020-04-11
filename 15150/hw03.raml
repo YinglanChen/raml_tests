@@ -65,8 +65,13 @@ let _ = heads(1,[])
  *)
 
 let rec tails ((x : int), (l: int list)): int list = 
-    if heads(x,l) = 0 then l 
-    else let (_::r) = l in tails(x,r) 
+  match l with 
+  | []   -> let _ = Raml.tick 1.0 in []
+  | _::r -> if (heads (x,l) = 0) then l 
+            else let _ = Raml.tick 1.0 in tails(x,r)
+
+(*     if heads(x,l) = 0 then l 
+    else let (_::r) = l in tails(x,r)  *)
 
 (* TESTING *)
 (* val [2,1,3] = tails (1,[1,1,2,1,3])
@@ -81,9 +86,14 @@ val [] = tails(1,[1,1,1,1,1]) *)
  * by deleting all occurrences of x in l *)
 let rec filterInt((x:int),(l:int list)) = 
   match l with 
-  | [] -> []
-  | a::r -> if heads(x,l) = 0 then a :: filterInt(x,r)
-           else filterInt(x, tails(x,l))
+  | [] -> let _ = Raml.tick 1.0 in []
+  | a::r -> if heads(x,l) = 0 then 
+              let _ = Raml.tick 1.0 in a :: filterInt(x,r)
+            else 
+              let _ = Raml.tick 1.0 in 
+              let tail = tails(x,l) in 
+              filterInt(x, tail)
+
 (* TESTING *)
 (* val [2,3] = filterInt (1, [1,1,2,1,3])
 val [1,1,1,3] =  filterInt (2, [1,1,2,1,3])
