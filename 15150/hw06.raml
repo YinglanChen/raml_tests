@@ -1,0 +1,169 @@
+type 'a shrub = Leaf of 'a | Branch of 'a shrub * 'a shrub
+
+(* Task 1.1 *)
+
+(* findOne: (’a -> bool) -> ’a shrub -> (’a -> ’b) -> (unit -> ’b) -> ’b
+ * Must use continuation-passing style
+ * REQUIRES: p is total
+ * ENSURES: findOne p t s k = s v where v is the left most value in T 
+ *          such that p v = true,
+ *          findOne p t s k = k () if no such v exists
+ *)
+let rec findOne (p : 'a -> bool) (t : 'a shrub)
+                (s : 'a -> 'b) (k : unit -> 'b) : 'b = 
+  match t with
+  | Leaf n -> if p n then s n else k ()
+  | Branch (l, r) ->  findOne p l s (fun () -> findOne p r s k)
+
+
+(* Task 1.2 *)
+(* findTwo: (’a -> bool) -> (’a * ’a -> bool) -> ’a shrub ->
+            (’a * ’a ->’b) -> (unit -> ’b) -> ’b 
+ * REQUIRES: function p is total, shrub T has distinct values at the leaves
+ * ENSURES: findTwo p eq T s k = s (v1, v2) where v1 and v2 are two distinct 
+            values in T such that p v1 = true and p v2 = true
+            findTwo p eq T s k = k () if no such v1,v2 exist
+ *)
+let findTwo (p : 'a -> bool) (eq : 'a * 'a -> bool) (t : 'a shrub)
+            (s : 'a * 'a -> 'b) (k : unit -> 'b) : 'b =
+  let 
+    inner_filter (v1: 'a) (v2:'a) =  (not (eq (v1,v2)) && (p v2))
+  in 
+  let 
+    inner_succ (v1: 'a) (v2: 'a) = s (v1,v2)
+  in
+  let
+    succ (v1: 'a) = findOne (inner_filter v1) t (inner_succ v1) k 
+  in 
+    findOne p t succ k 
+
+(* Task 1.3 *)
+
+(* findN : (’a -> bool) -> (’a * ’a -> bool) -> ’a shrub -> int ->
+        (’a list -> ’b) -> (unit -> ’b) -> ’b
+ * REQUIRES: function p is total, shrub T has distinct values at the leaves,
+ *           n >= 0 
+ * ENSURES: findN p eq T n s k = s L where L = [x1,x2,...,xn], 
+            and for all i, xi is a value in T such that p xi =true 
+            and for all j<>i,eq (xi, xj) = false
+            findN p eq T n s k = k() if no such x1,...,xn exist
+ *)
+let rec findN (p : 'a -> bool) (eq : 'a * 'a -> bool) (t : 'a shrub)
+          (n : int) (s : 'a list -> 'b) (k : unit -> 'b) : 'b =
+
+  if (n = 0) then s [] else 
+  let success x = findN (fun y -> (not (eq(x,y))) && (p y)) eq t (n-1) 
+            (fun l -> s(x::l))  k 
+  in findOne p t success k
+
+type queen = int * int * int
+type plane = XY | YZ | XZ
+
+(* Task 3.1 *)
+(* project : queen -> plane -> int * int
+ * REQUIRES: true
+ * ENSURES: project p q evaluates to the coordinates of the queen q 
+ *          when projected onto the plane p
+ *)
+let project ((x,y,z) : queen) (p : plane) : int * int = 
+  match p with 
+  | XY -> (x,y)
+  | YZ -> (y,z)
+  | XZ -> (x,z)
+
+(* Task 3.2 *)
+(* conflicts : queen -> queen -> bool
+ * REQUIRES: q1 and q2 on board
+ * ENSURES:  conflicts q1 q2 evaluates to true if q1 and q2 mutually attack 
+ * each other when projected onto the XY, XZ, or YZ plane, and false otherwise
+ *)
+let conflicts (q1 : queen) (q2 : queen) : bool = 
+  (* cite from lecture 15 code *)
+  (* threat: (int * int) * (int * int) -> bool *)
+  (* REQUIRES: x,y,i,j > 0 *)
+  (* ENSURES:threat (x,y),(i,j)= true if two queens attack,false otherwidse *)
+  let threat ((x,y),(i,j)) = (x=i) || (y=j) || (x+y=i+j) || (x-y=i-j)
+  in 
+    (threat (project q1 XY, project q2 XY))
+    || (threat(project q1 YZ, project q2 YZ))
+    || (threat(project q1 XZ, project q2 XZ))
+
+(* Task 3.3 *)
+(* helper functions *)
+(* make2DSol: int * int -> (int * int) list
+ * REQUIRES: 0 < i <= n
+ * ENSURES: make2DSol(i,n)=[(i,1),  (i,2)  ,...,(i,n),
+                          (i+1,1),(i+1,2),...,(i+1,n),...,(n,1),(n,2),...,(n,n)]
+ *)
+let rec make2DSol ((i:int), (n:int) ): (int * int) list =
+  let rec make1D ( (i: int), (n: int), (counter: int) ):(int * int) list = 
+    if counter = 0 then [] else (i,n-counter+1) :: make1D(i,n,counter-1) 
+  in 
+    if i <= n then make1D(i,n,n) @ make2DSol (i+1,n) else []
+  
+(* checkConflict: queen * queen list -> bool
+ * REQUIRES: q1 q2 on board
+ * ENSURES: checkConflict(q1,qlist) evaluates true if q1 conflicts with one of q
+   in qlist, false otherwise
+ *)
+
+let rec checkConflict ((q1: queen),(qlist: queen list)): bool =
+  match qlist with
+  | nil -> false
+  | q2 :: rest -> (conflicts q1 q2) || (checkConflict(q1,rest))
+
+
+(* try: int * int * (int * int) list * queen list -> (queen list -> 'a)
+        -> (unit -> 'a) -> (queen list -> 'a)
+ * REQUIRES: 0 < z <= n
+ * ENSURES: try (n, z, A, sol) fc evaluates to SOME sol if sol is a full 
+            solution, NONE if such solution does not exist
+ *)
+let rec trySol ((n:int), (z:int), (a:(int * int) list), (sol:queen list)) 
+        (s: queen list -> 'a) (fc:unit -> 'a): 'a = 
+    match a with 
+  | [] -> fc () (* fail *)
+  | (x,y)::b  ->  if checkConflict((x,y,z),sol) then trySol (n,z,b,sol) s fc 
+                  else 
+                    if z = n then s ((x,y,z)::sol) (* success *)
+                    else trySol (n,z+1,make2DSol(1,n),(x,y,z)::sol) s 
+                             (fun () -> trySol (n,z,b,sol) s fc )
+
+(* see nQueens test cases *)
+
+(* nQueens : int -> (queen list -> ’a) -> (unit -> ’a) -> ’a
+ * REQUIRES:  n > 0
+ * ENSURES: nQueens n s k evaluates to s L,where L is a list of queen placements
+   that constitute a valid solution to the 3D n-queens problem, 
+   or k () if no such list exists. 
+ *)
+let nQueens (n : int) (s : queen list -> 'a) (k : unit -> 'a) : 'a = 
+  trySol (n,1,make2DSol(1,n),[]) s k
+
+
+
+(* Task 5.1 *)
+(* makemult: int list -> int -> int list
+ * REQUIRES: true
+ * ENSURES: makemult L n returns a list containing only numbers of L whose total
+   product is n, or raise the exception NoSubset if there is no such list.
+ *)
+exception NoSubset
+
+let rec makemult (l : int list) (n : int) : int list = 
+  match l with
+  | nil -> if n = 1 then [] else raise NoSubset
+  | x :: r -> 
+    if n = 0 then (if x = 0 then [x] else makemult r 0)
+    else 
+      try
+        (if (x = 0 || x = 1) then makemult r n else
+        if (x = -1)         then (-1::(makemult r (-n) )) else
+        if (n mod x = 0)      then  x::( makemult (x::r) (n / x) )
+        else makemult r n )
+
+      with NoSubset -> makemult r n 
+
+
+
+
