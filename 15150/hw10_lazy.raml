@@ -1,0 +1,83 @@
+type 'a lazylist =
+  Nil
+| Cons of 'a * (unit -> 'a lazylist)
+
+type order = LESS | GREATER | EQUAL
+
+let rec show (n: int) (xs: 'a lazylist) =
+  match (n, xs) with
+  | (0, _) -> []
+  | (_, Nil) -> []
+  | (_, Cons (x, xs')) -> x :: show (n - 1) (xs' ())
+
+let singleton x =
+  Cons (x, (fun () -> Nil))
+
+let rec nats n =
+  Cons (n, (fun () -> nats (n + 1)))
+
+let rec lazymap f xs =
+  match xs with
+  | Nil -> Nil
+  | Cons (x, xs') -> Cons (f x, (fun () -> lazymap f (xs' ())) )
+
+let rec lazyfilter p xs =
+  match xs with
+  | Nil -> Nil
+  | Cons (x, xs') ->
+      if p x
+      then Cons (x, fun () -> lazyfilter p (xs' ()))
+      else lazyfilter p (xs' ())
+
+let rec union cmp (xs, ys) =
+  match (xs, ys) with
+  | (_, Nil) -> xs
+  | (Nil, _) -> ys
+  | (Cons (x, xs'), Cons (y, ys')) -> (
+      match cmp (x, y) with
+      | LESS -> Cons (x, (fun () -> union cmp (xs' (), ys)))
+      | EQUAL -> Cons (x, (fun () -> union cmp (xs' (), ys' ())))
+      | GREATER -> Cons (y, (fun () -> union cmp (xs, ys' ())))
+    )
+
+
+(* Task 1.1
+ * doctor : string -> string lazylist
+ * REQUIRES: true
+ * ENSURES: doctor x represents the lazy list
+ *          "", x, x^x, x^x^x,...
+ *)
+let rec doctor (x:string): string lazylist = 
+   Cons("",(fun () -> lazymap (fun s -> x ^ s ) (doctor x)) )
+
+(* Task 1.2
+ * stringcmp : string * string -> order
+ * REQUIRES: true
+ * ENSURES: stringcmp (x,y) compares string x and y first based on string size
+ *          and then on alphabetic order
+ *)
+let stringcmp (x, y) =
+  let len_x = String.length x in 
+  let len_y = String.length y in 
+  if (len_x < len_y) then LESS 
+  else if (len_x > len_y) then GREATER
+  else 
+    let cmp = (String.compare x y) in 
+    if cmp = 0 then EQUAL else if cmp > 0 then GREATER else LESS
+(* Task 1.5
+ * pairwith : (’a * ’a -> order) -> (’a * ’a -> ’a) ->
+               ’a lazylist * ’a lazylist -> ’a lazylist
+ * REQUIRES: cmp is linear and accessible
+ *           f is cmp-monotone
+ *           xs and ys are cmp-increasing
+ * ENSURES:  pairwith cmp f (xs, ys) = all values f (x, y), in cmp-increasing 
+             order, where x in xs, y in ys
+ *)
+let rec pairwith cmp f (xs, ys) =
+  match (xs,ys) with
+  | (Nil, _  ) -> Nil
+  | (_  , Nil) -> Nil
+  | (Cons(x,xs'), Cons(y,ys')) -> 
+     union cmp (
+     Cons(f(x,y), (fun () -> lazymap (fun yi -> f(x,yi)) (ys'())) ),
+     Cons(f(x,y), (fun () -> pairwith cmp f ( (xs'()), ys)))    )

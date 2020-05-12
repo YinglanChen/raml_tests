@@ -91,7 +91,7 @@ let rec filterInt((x:int),(l:int list)) =
               let _ = Raml.tick 1.0 in a :: filterInt(x,r)
             else 
               let _ = Raml.tick 1.0 in 
-              let tail = tails(x,l) in 
+              let tail = tails(x,r) in 
               filterInt(x, tail)
 
 (* TESTING *)
@@ -110,7 +110,7 @@ val [1,5,1,5,0] = filterInt (3, [1,5,1,5,0]) *)
 let rec look_and_say(l:int list): int list = 
     match l with 
   | [] -> []
-  | x::xs -> heads(x,x::xs)::x::look_and_say(tails(x,x::xs))
+  | x::xs -> heads(x,x::xs)::x::look_and_say(tails(x,xs))
 
 (* TESTING *)
 (* val [] = look_and_say([])
@@ -123,9 +123,9 @@ val [3,1,2,2,1,1] = look_and_say([1,1,1,2,2,1]) *)
 (* rEQUIrES: n is non-negative *)
 (* ENSUrES: look_say_table(l,n) evaluates to a list of length n+1 of
  * repeated look_and_say lists, starting with l *)
- let rec look_say_table ((l: int list), (n: int)) : int list list = 
-   if n = 0 then [l]
-   else l :: look_say_table(look_and_say(l),n-1)
+ (* todo change n to rnat  *)
+let rec look_say_table ((l: int list), (n: Rnat.t)) : int list list = 
+   Rnat.ifz n (fun () -> [l]) (fun n' -> l :: look_say_table(look_and_say(l), n' ))
 
 (* TESTING *)
 (* val [[1]] = look_say_table([1],0)

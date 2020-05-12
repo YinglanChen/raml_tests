@@ -1,0 +1,43 @@
+
+type 'a lazylist =
+  Nil
+| Cons of 'a * (unit -> 'a lazylist)
+
+type order = LESS | GREATER | EQUAL
+
+let rec show (n: int) (xs: 'a lazylist) =
+  match (n, xs) with
+  | (0, _) -> []
+  | (_, Nil) -> []
+  | (_, Cons (x, xs')) -> x :: show (n - 1) (xs' ())
+
+let singleton x =
+  Cons (x, (fun () -> Nil))
+
+let rec nats n =
+  Cons (n, (fun () -> nats (n + 1)))
+
+let rec lazymap f xs =
+  match xs with
+  | Nil -> Nil
+  | Cons (x, xs') -> Cons (f x, (fun () -> lazymap f (xs' ())) )
+
+let rec lazyfilter p xs =
+  match xs with
+  | Nil -> Nil
+  | Cons (x, xs') ->
+      if p x
+      then Cons (x, fun () -> lazyfilter p (xs' ()))
+      else lazyfilter p (xs' ())
+
+let rec union cmp (xs, ys) =
+  match (xs, ys) with
+  | (_, Nil) -> xs
+  | (Nil, _) -> ys
+  | (Cons (x, xs'), Cons (y, ys')) -> (
+      match cmp (x, y) with
+      | LESS -> Cons (x, (fun () -> union cmp (xs' (), ys)))
+      | EQUAL -> Cons (x, (fun () -> union cmp (xs' (), ys' ())))
+      | GREATER -> Cons (y, (fun () -> union cmp (xs, ys' ())))
+    )
+

@@ -1,0 +1,47 @@
+type 'a array = int -> 'a ref
+exception OutOfBounds
+
+(* Task 3.1
+ * init_array : int -> 'a -> 'a array 
+ * REQUIRES: n > 0
+ * ENSURES: init-array n v creates a new array defined over the indices 0 
+ *          through n-1, with all elements initialized to v
+ *)
+
+let rec init_array (n:int) (v:'a): 'a array = 
+  if n = 1 then 
+    let temp = ref v in (fun i -> if i = 0 then temp else raise OutOfBounds)
+  else 
+    let firstHalf = n / 2 in
+    let secondHalf = n - n / 2 in
+    let new1 = init_array firstHalf v in
+    let new2 = init_array secondHalf v in
+      (fun i -> if (i < 0 || i >= n) then raise OutOfBounds
+                else if (i < n / 2) then new1 i          
+                else new2 (i - n / 2)   )
+(* O(n) work,O(log n) span *)
+
+
+  (* Task 3.2
+   * update : ’a array -> int * ’a -> unit
+   * REQUIRES: i in bound
+   * ENSURES: update a (i, v) updates the ith element of a to be v 
+   *          if 0 <= i <= n-1, or raise exception OutOfBounds if i is out of 
+   *          range
+   *)
+  fun update (a:'a array) (i: int, v: 'a) : unit =
+     a i := v 
+  (* O(log n) work and span *)
+
+  (* Task 3.3
+   * lookup : ’a array -> int -> 'a
+   * REQUIRES: True
+   * ENSURES: lookup a i evaluates to the ith element of a, or raise exception
+   *          OutOfBounds if i is not inside the given array
+   *)
+  fun lookup (a: 'a array) (i:int):'a =
+    !(a i)
+  (* O(log n) work and span *)
+
+
+

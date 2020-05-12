@@ -1,0 +1,43 @@
+
+type 'a lazylist =
+  Nil
+| Cons of 'a * (unit -> 'a lazylist)
+
+(* ========================================================================== *)
+
+(* Task 2.1
+ * bbs : int -> int -> int LazyList.lazylist
+ * REQUIRES: m is the product of two large primes
+ * ENSURES: bbs m seed evaluate to a lazy list of integers representing 
+ * a Blum-Blum-Shub PRNG with modulus m and initial seed seed 
+ *)
+let rec bbs (m: int) (seed:int) =
+  let newSeed = (seed * seed) mod m
+  in  Cons ( newSeed, fun () -> bbs m newSeed )
+ 
+
+(* Task 2.2 (first part) *)
+type randstate = int ref * int ref
+
+
+(* Task 2.2 (second part)
+ * init : int -> int -> randstate
+ * REQUIRES: m is the product of two large primes
+ * ENSURES: init m seed evaluate to (ref seed, ref m)
+ *)
+let init (m:int) (seed:int): randstate = (ref seed, ref m)
+    
+
+(* Task 2.2 (third part)
+ * next : randstate -> int
+ * REQUIRES: valid randstate
+ * ENSURES: ith call to               
+ * next r produces the ith random number from a Blum-Blum-Shub PRNG with 
+ * modulus m, a product of two large primes, and initial seed seed
+ *)
+let next (r:randstate): int = 
+  let (seed,m) = r
+  in
+    (seed := (!seed * !seed) mod !m; !seed)
+
+
