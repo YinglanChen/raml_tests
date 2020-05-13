@@ -1,4 +1,9 @@
-type 'a array = int -> 'a ref
+(* nat version of task 3 impreative; cannot satisfy the span *)
+(* 
+type 'a array = Rnat.t -> 'a ref
+  tail = init_array (n-1) v 
+  fun i -> if i = 0 then temp else tail (i-1)*)
+type 'a array = Rnat.t -> 'a ref
 exception OutOfBounds
 
 (* Task 3.1
@@ -8,19 +13,21 @@ exception OutOfBounds
  *          through n-1, with all elements initialized to v
  *)
 
-let rec init_array (n:int) (v:'a): 'a array = 
-  if n = 1 then 
-    let temp = ref v in (fun i -> if i = 0 then temp else raise OutOfBounds)
-  else 
-    let firstHalf = n / 2 in
-    let secondHalf = n - n / 2 in
-    let new1 = init_array firstHalf v in
-    let new2 = init_array secondHalf v in
-      (fun i -> if (i < 0 || i >= n) then raise OutOfBounds
-                else if (i < n / 2) then new1 i          
-                else new2 (i - n / 2))
-(* O(n) work,O(log n) span *)
-
+let rec init_array (n:Rnat.t) (v:'a): 'a array = 
+  ifz n 
+  (fun () -> raise OutOfBounds) (* requires n > 0 *)
+  (fun n' -> 
+    ifz n' 
+    (fun () -> 
+        (* singleton *)
+        (fun i -> ifz i (fun () -> ref v) (fun _ -> raise OutOfBounds))
+    )
+    (fun _ -> 
+        (* head is ref v, tail is recursive call *)
+        let tail = init_array n' v in 
+        (fun i -> ifz i (fun () -> ref v) (fun _ -> tail (i-1)))
+    )
+  )
 
 (* Task 3.2
  * update : ’a array -> int * ’a -> unit

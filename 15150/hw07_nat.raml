@@ -1,0 +1,165 @@
+(* change int to nat to see if that change problems *)
+type elem = Rnat.t
+(* vectors are 0 indexed *)
+type vector = Rnat.t * (Rnat.t -> elem)
+(* tabulate : (int -> elem) -> int -> vector *)
+(* REQUIRES: f i returns a value for 0 <= i < n *)
+(* ENSURES: tabulate f n creates a vector of dimension n where entry i 
+ * is given by f i, with 0 ≤ i < n.*)
+let tabulate (f: Rnat.t -> elem) (n:Rnat.t) : vector = (n,f)
+(* m should equal to n *)
+(* 
+ * dotprod : vector * vector -> elem
+ * REQUIRES: vector v and w are valid and have the same dimension 
+ * ENSURES: dotprod (v,w) evaluates to the scalar dot product of two vectors 
+ *          v and w 
+ *)
+let rec dotprod ((v1: vector), (v2:vector)): elem = 
+  let (n, fv) = v1 in 
+  let (m, fw) = v2 in 
+  if (n = 0 && m = 0) then 0 else 
+  (fv (n-1)) * (fw (m-1)) + dotprod((n-1,fv), (m-1,fw))
+(*     let dotprod ((0,fv): vector, (0,fw): vector): elem = 0
+  | dotprod ((n,fv), (m,fw)) = 
+    (fv (n-1)) * (fw (m-1)) + dotprod((n-1,fv), (m-1,fw)) *)
+
+(* length : vector -> int
+ * REQUIRES: input vector is valid
+ * ENSURES: length v returns the dimension of the vector v
+ *)
+let length (v:vector): int = let (n,f) = v in n
+
+(* eq : vector * vector -> bool 
+ * REQUIRES: input vectors are valid
+ * ENSURES: eq (v,w) returns true if the vector v is equal to the vector w 
+ *          and false otherwise
+ *)
+let rec eq ((v1: vector), (v2:vector)): bool = 
+  let (n, fv) = v1 in 
+  let (m, fw) = v2 in 
+  (n=0 && m=0) || 
+  ((n = m) 
+    && (fv (n-1) = fw (m-1)) 
+    && eq((n-1,fv),(m-1,fw)))
+
+(* nth : vector * int -> elem
+ * REQUIRES: 0 <= i < n
+ * ENSURES: nth (v, i) returns the ith element of vector v, if it exists. 
+ *)
+let nth ((v: vector), (i: int)): elem = let (n,f) = v in  f i
+
+
+type m_elem = elem
+type m_vector = vector
+type matrix = (int * int) * (int -> int -> m_elem) (* curried *)
+
+(* tabulate : (int * int -> elem) -> int -> int -> matrix *)
+(* REQUIRES: m > 0, n > 0, f (i,j) returns a value for 0 <= i < n, 0 <= j < m
+ * ENSURES: tabulate f n m creates an n×m matrix M 
+ * where for each row i and column j, the element at m_ij is f(i,j).
+ *)
+let tabulate (f: (int * int -> m_elem)) (n:int) (m:int):matrix = 
+    ((n,m), (fun i -> (fun j -> f(i,j))) )
+
+(* update : matrix -> (int * int) -> elem -> matrix *)
+(* REQUIRES: input matrix is valid, 0 <= i < n, 0 <= j < m
+ * ENSURES: update M (i,j) v updates the element in M at row i and column j 
+ * such that m_ij = v, and returns the new matrix.
+ *)
+let update (mtx: matrix) ((i: int), (j:int)) (v:m_elem): matrix = 
+  let ((n,m),f) = mtx in
+  let rec newFun = 
+    (fun x -> 
+        (fun y -> if (x = i && y = j) then v else f x y))
+  in 
+    ((n,m), newFun )  
+
+(* identity : int -> matrix *)
+(* REQUIRES: n > 0
+ * ENSURES: identity n returns the n×n identity matrix In
+ *)
+let identity (n: int) : matrix = 
+  let 
+    f x y = (if x=y then 1 else 0)
+  in
+    ((n,n),f)
+
+(* size : matrix -> (int * int) *)
+(* REQUIRES: input matrix is valid
+ * ENSURES: size M returns(n,m)if M is an n×m matrix *)
+let size (mtx: matrix) = let ((n,m),f) = mtx in (n,m)
+
+(* transpose : matrix -> matrix *)
+(* REQUIRES: imput matrix is valid
+ * ENSURES: transpose M returns the transpose of M *)
+let transpose ( mtx : matrix) : matrix = 
+  let ((n,m),f) = mtx in
+  ( (m,n) , fun x -> (fun y -> f y x) )
+
+(* add : matrix * matrix -> matrix *)
+(* REQUIRES: A and B are valid matrices with the same dimensions
+ * ENSURES: add (A,B) returns the sum of the matrix A and the matrix B. 
+ *)
+let add ((mtx1 : matrix), (mtx2 : matrix)):matrix = 
+  let ((n,m),fa) = mtx1 in
+  let ((n2,m2),fb) = mtx2 in
+  ( (n,m), fun x -> (fun y -> (fa x y) + (fb x y)))
+
+(* subtract : matrix * matrix -> matrix *)
+(* REQUIRES:  A and B are valid matrices with the same dimensions
+ * ENSURES: subtract (A,B) returns the difference of the matrix A and  B
+ *)
+let subtract ((mtx1 : matrix) , (mtx2 : matrix)):matrix = 
+  let ((n,m),fa) = mtx1 in
+  let ((_,_),fb) = mtx2 in
+  ( (n,m), fun x -> (fun y -> (fa x y) - (fb x y)))
+
+(* scalarmult : int * matrix -> matrix 
+ * REQUIRES: input matrix is valid
+ * ENSURES: scalarmult (c,M) multiplies every entry of matrix M by c *)
+let scalarmult ((c : int) , (mtx : matrix) ): matrix = 
+  let ((n,m),f) = mtx in
+  ( (n,m), fun x -> (fun y -> c * (f x y)) )
+
+(* helper functions *)
+(* row: matrix -> int -> vector
+ * REQUIRES: 0 <= i < n if matrix M has dimension n * m
+ * ENSURES: row M i returns the ith row of the matrix as a vector
+ *)
+let row (mtx :matrix) (i:int) : vector = 
+  let ((n,m),fm) = mtx in 
+  let fv j = fm i j
+  in (m,fv) 
+
+(* col: matrix -> i -> vector
+ * REQUIRES: 0 <= j < m if matrix M has dimension n * m
+ * ENSURES: col M j returns the jth column of the matrix as a vector
+ *)
+let col (mtx:matrix) (j:int) : vector =     
+  let ((n,m),fm) = mtx in 
+  let fv i = fm i j
+  in (n,fv)
+(* end of helper functions *)
+
+
+(* mult : matrix * matrix -> matrix *)
+(* REQUIRES: A is an n×m matrix and B is an m × p matrix
+ * ENSURES: mult (A,B) evaluates to the product of two matrices A and B 
+ *)
+let mult ((mtx1 : matrix), (mtx2 : matrix)) : matrix =
+  let ((n,m),fa) = mtx1 in
+  let ((m2,p),fb) = mtx2 in
+  let f x y = dotprod(row ((n,m), fa) x, col ((m2,p),fb) y)
+  in ((n,p), f)
+
+
+(* eq : matrix * matrix -> bool *)
+(* REQUIRES: A and B are valid matrix
+ * ENSURES: eq (A,B) evaluates to true if A and B are the same matrix 
+ *          and false otherwise,
+ *)
+let rec m_eq ((a : matrix) , (b : matrix)) : bool  = 
+  let ((n1,m1), fa) = a in 
+  let ((n2,m2), fb) = b in 
+  (n1 = 0 && n2 = 0) 
+  || (eq(row a (n1-1), row b (n2-1)) && m_eq (((n1-1,m1), fa),((n2-1,m2), fb)))
